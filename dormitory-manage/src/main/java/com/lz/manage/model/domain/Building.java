@@ -39,8 +39,11 @@ public class Building implements Serializable
     private String remark;
 
     /** 创建人 */
-    @Excel(name = "创建人")
+    @Excel(name = "创建人",type = Excel.Type.IMPORT)
     private Long userId;
+    @Excel(name = "创建人",type = Excel.Type.EXPORT)
+    @TableField(exist = false)
+    private String userName;
 
     /** 创建时间 */
     @JsonFormat(pattern = "yyyy-MM-dd")

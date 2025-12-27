@@ -6,6 +6,10 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 import javax.validation.Validator;
+
+import com.lz.common.core.domain.entity.SysUser;
+import com.lz.common.utils.SecurityUtils;
+import com.lz.system.service.ISysUserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.lz.common.utils.StringUtils;
@@ -40,6 +44,9 @@ public class BuildingServiceImpl extends ServiceImpl<BuildingMapper, Building> i
     private static Validator validator;
 
     @Resource
+    private ISysUserService sysUserService;
+
+    @Resource
     private BuildingMapper buildingMapper;
 
     {
@@ -68,7 +75,14 @@ public class BuildingServiceImpl extends ServiceImpl<BuildingMapper, Building> i
     @Override
     public List<Building> selectBuildingList(Building building)
     {
-        return buildingMapper.selectBuildingList(building);
+        List<Building> buildings = buildingMapper.selectBuildingList(building);
+        for (Building info : buildings) {
+            SysUser sysUser = sysUserService.selectUserById(info.getUserId());
+            if (StringUtils.isNotNull(sysUser)) {
+                info.setUserName(sysUser.getUserName());
+            }
+        }
+        return buildings;
     }
 
     /**
@@ -80,6 +94,7 @@ public class BuildingServiceImpl extends ServiceImpl<BuildingMapper, Building> i
     @Override
     public int insertBuilding(Building building)
     {
+        building.setUserId(SecurityUtils.getUserId());
         building.setCreateTime(DateUtils.getNowDate());
         return buildingMapper.insertBuilding(building);
     }
