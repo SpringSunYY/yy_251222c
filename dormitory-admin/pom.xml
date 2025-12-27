@@ -60,6 +60,10 @@
             <groupId>com.lz</groupId>
             <artifactId>dormitory-generator</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.lz</groupId>
+            <artifactId>dormitory-manage</artifactId>
+        </dependency>
 
     </dependencies>
 

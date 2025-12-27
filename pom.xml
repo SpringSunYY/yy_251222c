@@ -233,6 +233,11 @@
                 <artifactId>dormitory-common</artifactId>
                 <version>${dormitory.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.lz</groupId>
+                <artifactId>dormitory-manage</artifactId>
+                <version>${dormitory.version}</version>
+            </dependency>
 
         </dependencies>
     </dependencyManagement>
@@ -244,6 +249,7 @@
         <module>dormitory-quartz</module>
         <module>dormitory-generator</module>
         <module>dormitory-common</module>
+        <module>dormitory-manage</module>
     </modules>
     <packaging>pom</packaging>
 

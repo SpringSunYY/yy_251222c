@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lz.manage.mapper.RepairWorkOrderMapper">
+    
+    <resultMap type="RepairWorkOrder" id="RepairWorkOrderResult">
+        <result property="id"    column="id"    />
+        <result property="repairId"    column="repair_id"    />
+        <result property="status"    column="status"    />
+        <result property="dealWithId"    column="deal_with_id"    />
+        <result property="dealWithTime"    column="deal_with_time"    />
+        <result property="dealWithCost"    column="deal_with_cost"    />
+        <result property="dealWithContent"    column="deal_with_content"    />
+        <result property="dealWithImage"    column="deal_with_image"    />
+        <result property="completedTime"    column="completed_time"    />
+        <result property="remark"    column="remark"    />
+        <result property="userId"    column="user_id"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectRepairWorkOrderVo">
+        select id, repair_id, status, deal_with_id, deal_with_time, deal_with_cost, deal_with_content, deal_with_image, completed_time, remark, user_id, create_time, update_time from tb_repair_work_order
+    </sql>
+
+    <select id="selectRepairWorkOrderList" parameterType="RepairWorkOrder" resultMap="RepairWorkOrderResult">
+        <include refid="selectRepairWorkOrderVo"/>
+        <where>  
+            <if test="id != null "> and id = #{id}</if>
+            <if test="repairId != null "> and repair_id = #{repairId}</if>
+            <if test="status != null  and status != ''"> and status = #{status}</if>
+            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''"> and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}</if>
+        </where>
+    </select>
+    
+    <select id="selectRepairWorkOrderById" parameterType="Long" resultMap="RepairWorkOrderResult">
+        <include refid="selectRepairWorkOrderVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertRepairWorkOrder" parameterType="RepairWorkOrder" useGeneratedKeys="true" keyProperty="id">
+        insert into tb_repair_work_order
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="repairId != null">repair_id,</if>
+            <if test="status != null and status != ''">status,</if>
+            <if test="dealWithId != null">deal_with_id,</if>
+            <if test="dealWithTime != null">deal_with_time,</if>
+            <if test="dealWithCost != null">deal_with_cost,</if>
+            <if test="dealWithContent != null">deal_with_content,</if>
+            <if test="dealWithImage != null">deal_with_image,</if>
+            <if test="completedTime != null">completed_time,</if>
+            <if test="remark != null and remark != ''">remark,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="repairId != null">#{repairId},</if>
+            <if test="status != null and status != ''">#{status},</if>
+            <if test="dealWithId != null">#{dealWithId},</if>
+            <if test="dealWithTime != null">#{dealWithTime},</if>
+            <if test="dealWithCost != null">#{dealWithCost},</if>
+            <if test="dealWithContent != null">#{dealWithContent},</if>
+            <if test="dealWithImage != null">#{dealWithImage},</if>
+            <if test="completedTime != null">#{completedTime},</if>
+            <if test="remark != null and remark != ''">#{remark},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateRepairWorkOrder" parameterType="RepairWorkOrder">
+        update tb_repair_work_order
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="repairId != null">repair_id = #{repairId},</if>
+            <if test="status != null and status != ''">status = #{status},</if>
+            <if test="dealWithId != null">deal_with_id = #{dealWithId},</if>
+            <if test="dealWithTime != null">deal_with_time = #{dealWithTime},</if>
+            <if test="dealWithCost != null">deal_with_cost = #{dealWithCost},</if>
+            <if test="dealWithContent != null">deal_with_content = #{dealWithContent},</if>
+            <if test="dealWithImage != null">deal_with_image = #{dealWithImage},</if>
+            <if test="completedTime != null">completed_time = #{completedTime},</if>
+            <if test="remark != null and remark != ''">remark = #{remark},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteRepairWorkOrderById" parameterType="Long">
+        delete from tb_repair_work_order where id = #{id}
+    </delete>
+
+    <delete id="deleteRepairWorkOrderByIds" parameterType="String">
+        delete from tb_repair_work_order where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
