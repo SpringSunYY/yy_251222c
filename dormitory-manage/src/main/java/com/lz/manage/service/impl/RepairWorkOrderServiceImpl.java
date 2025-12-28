@@ -130,7 +130,26 @@ public class RepairWorkOrderServiceImpl extends ServiceImpl<RepairWorkOrderMappe
     @Override
     public int updateRepairWorkOrder(RepairWorkOrder repairWorkOrder) {
         checkWorkOrder(repairWorkOrder);
-        repairWorkOrder.setUpdateTime(DateUtils.getNowDate());
+        //查询数据是否已完成
+        RepairWorkOrder orderDb = this.selectRepairWorkOrderById(repairWorkOrder.getId());
+        if (StringUtils.isNull(orderDb)) {
+            throw new ServiceException("数据不存在");
+        }
+        if (orderDb.getStatus().equals(WorkOrderStatusEnum.WORK_ORDER_STATUS_1.getValue())) {
+            throw new ServiceException("该工单已处理");
+        }
+        //如果传过来的是完成
+        Date nowDate = DateUtils.getNowDate();
+        if (repairWorkOrder.getStatus().equals(WorkOrderStatusEnum.WORK_ORDER_STATUS_1.getValue())) {
+            //拿到工单
+            Repair repair = repairService.selectRepairById(orderDb.getRepairId());
+            repair.setStatus(RepairStatusEnum.REPAIR_STATUS_2.getValue());
+            repair.setCompletedTime(nowDate);
+            repair.setDealWithCost(repairWorkOrder.getDealWithCost());
+            repairService.updateRepair(repair);
+            repairWorkOrder.setCompletedTime(nowDate);
+        }
+        repairWorkOrder.setUpdateTime(nowDate);
         return repairWorkOrderMapper.updateRepairWorkOrder(repairWorkOrder);
     }
 

@@ -174,7 +174,7 @@
       </el-table-column>
       <el-table-column label="报修位置" align="center" v-if="columns[7].visible" prop="repairAddress">
         <template slot-scope="scope">
-          <dict-tag :options="dict.type.repair_status" :value="scope.row.repairAddress"/>
+          <dict-tag :options="dict.type.repair_address" :value="scope.row.repairAddress"/>
         </template>
       </el-table-column>
       <el-table-column label="发现时间" align="center" v-if="columns[8].visible" prop="repairTime" width="180">
@@ -443,6 +443,14 @@
               :value="item.userId"
             ></el-option>
           </el-select>
+        </el-form-item>
+        <el-form-item label="处理时间" prop="dealWithTime">
+          <el-date-picker clearable
+                          v-model="form.dealWithTime"
+                          type="date"
+                          value-format="yyyy-MM-dd"
+                          placeholder="请选择处理时间">
+          </el-date-picker>
         </el-form-item>
         <el-form-item label="备注" prop="remark">
           <el-input v-model="form.remark" type="textarea" placeholder="请输入内容"/>

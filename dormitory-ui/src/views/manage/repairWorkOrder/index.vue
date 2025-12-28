@@ -117,7 +117,11 @@
       <el-table-column label="维修工" :show-overflow-tooltip="true" align="center" v-if="columns[3].visible"
                        prop="dealWithName"/>
       <el-table-column label="处理时间" :show-overflow-tooltip="true" align="center" v-if="columns[4].visible"
-                       prop="dealWithTime"/>
+                       prop="dealWithTime">
+        <template slot-scope="scope">
+          <span>{{ parseTime(scope.row.dealWithTime, '{y}-{m}-{d}') }}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="处理费用" :show-overflow-tooltip="true" align="center" v-if="columns[5].visible"
                        prop="dealWithCost"/>
       <el-table-column label="处理内容" :show-overflow-tooltip="true" align="center" v-if="columns[6].visible"
@@ -128,7 +132,11 @@
         </template>
       </el-table-column>
       <el-table-column label="完成时间" :show-overflow-tooltip="true" align="center" v-if="columns[8].visible"
-                       prop="completedTime"/>
+                       prop="completedTime">
+        <template slot-scope="scope">
+          <span>{{ parseTime(scope.row.completedTime, '{y}-{m}-{d}') }}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="备注" :show-overflow-tooltip="true" align="center" v-if="columns[9].visible"
                        prop="remark"/>
       <el-table-column label="创建人" :show-overflow-tooltip="true" align="center" v-if="columns[10].visible"
@@ -176,9 +184,9 @@
     <!-- 添加或修改维修工单对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="报修" prop="repairId">
-          <el-input v-model="form.repairId" placeholder="请输入报修"/>
-        </el-form-item>
+        <!--        <el-form-item label="报修" prop="repairId">-->
+        <!--          <el-input v-model="form.repairId" placeholder="请输入报修"/>-->
+        <!--        </el-form-item>-->
         <el-form-item label="工单状态" prop="status">
           <el-radio-group v-model="form.status">
             <el-radio
@@ -189,29 +197,20 @@
             </el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="维修工" prop="dealWithId">
-          <el-input v-model="form.dealWithId" placeholder="请输入维修工"/>
-        </el-form-item>
-        <el-form-item label="处理时间" prop="dealWithTime">
-          <el-input v-model="form.dealWithTime" placeholder="请输入处理时间"/>
-        </el-form-item>
+        <!--        <el-form-item label="维修工" prop="dealWithId">-->
+        <!--          <el-input v-model="form.dealWithId" placeholder="请输入维修工"/>-->
+        <!--        </el-form-item>-->
         <el-form-item label="处理费用" prop="dealWithCost">
-          <el-input v-model="form.dealWithCost" placeholder="请输入处理费用"/>
+          <el-input-number :min="0" v-model="form.dealWithCost" placeholder="请输入处理费用"/>
         </el-form-item>
         <el-form-item label="处理内容">
-          <editor v-model="form.dealWithContent" :min-height="192"/>
+          <el-input type="textarea" v-model="form.dealWithContent" :min-height="192"/>
         </el-form-item>
         <el-form-item label="处理照片" prop="dealWithImage">
           <image-upload v-model="form.dealWithImage"/>
         </el-form-item>
-        <el-form-item label="完成时间" prop="completedTime">
-          <el-input v-model="form.completedTime" placeholder="请输入完成时间"/>
-        </el-form-item>
         <el-form-item label="备注" prop="remark">
           <el-input v-model="form.remark" type="textarea" placeholder="请输入内容"/>
-        </el-form-item>
-        <el-form-item label="创建人" prop="userId">
-          <el-input v-model="form.userId" placeholder="请输入创建人"/>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -277,7 +276,7 @@ export default {
         {key: 9, label: '备注', visible: true},
         {key: 10, label: '创建人', visible: true},
         {key: 11, label: '创建时间', visible: true},
-        {key: 12, label: '更新时间', visible: true},
+        {key: 12, label: '更新时间', visible: false},
       ],
       // 遮罩层
       loading: true,
@@ -341,7 +340,7 @@ export default {
           {required: true, message: "维修工不能为空", trigger: "blur"}
         ],
         remark: [
-          {required: true, message: "备注不能为空", trigger: "blur"}
+          {required: false, message: "备注不能为空", trigger: "blur"}
         ],
         userId: [
           {required: true, message: "创建人不能为空", trigger: "blur"}

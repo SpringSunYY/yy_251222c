@@ -1,5 +1,6 @@
 package com.lz.manage.model.dto.repairWorkOrder;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.lz.manage.model.domain.RepairWorkOrder;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
@@ -35,6 +36,7 @@ public class RepairWorkOrderInsert implements Serializable {
     /**
      * 处理时间
      */
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date dealWithTime;
 
     /**

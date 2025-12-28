@@ -55,6 +55,7 @@ public class RepairWorkOrder implements Serializable {
      * 处理时间
      */
     @Excel(name = "处理时间")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date dealWithTime;
 
     /**
