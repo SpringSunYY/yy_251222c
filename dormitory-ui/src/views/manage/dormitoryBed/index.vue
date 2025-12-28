@@ -163,6 +163,14 @@
           <el-button
             size="mini"
             type="text"
+            icon="el-icon-plus"
+            @click="handleApply(scope.row)"
+            v-hasPermi="['manage:dormitoryApply:add']"
+          >申请
+          </el-button>
+          <el-button
+            size="mini"
+            type="text"
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
             v-hasPermi="['manage:dormitoryBed:remove']"
@@ -280,12 +288,26 @@
         <el-button @click="upload.open = false">取 消</el-button>
       </div>
     </el-dialog>
+
+    <!-- 添加或修改宿舍申请对话框 -->
+    <el-dialog :title="title" :visible.sync="openApply" width="500px" append-to-body>
+      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+        <el-form-item label="申请理由" prop="applyContent">
+          <el-input v-model="form.applyContent" type="textarea" placeholder="请输入内容"/>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="submitFormApply">确 定</el-button>
+        <el-button @click="cancel">取 消</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import {
-  addDormitoryBed, allotDormitoryBed,
+  addDormitoryBed,
+  allotDormitoryBed,
   delDormitoryBed,
   getDormitoryBed,
   listDormitoryBed,
@@ -293,12 +315,15 @@ import {
 } from "@/api/manage/dormitoryBed";
 import {getToken} from "@/utils/auth";
 import {listUserByRole} from "@/api/system/user";
+import {addDormitoryApply} from "@/api/manage/dormitoryApply";
 
 export default {
   name: "DormitoryBed",
   dicts: ['dormitory_status'],
   data() {
     return {
+      //打开申请
+      openApply: false,
       //打开
       openAllot: false,
       //宿舍编号
@@ -416,6 +441,24 @@ export default {
     this.getUserList();
   },
   methods: {
+    submitFormApply() {
+      addDormitoryApply(this.form).then(response => {
+        this.$modal.msgSuccess("申请成功");
+        this.openApply = false;
+        this.getList();
+      })
+    },
+    handleApply(row) {
+      this.reset();
+      const id = row.id || this.ids
+      getDormitoryBed(id).then(response => {
+        this.form = response.data;
+        this.form.bedId = id;
+        this.form.id = null
+        this.openApply = true;
+        this.title = "申请宿舍床位";
+      });
+    },
     handleAllot(row) {
       this.reset();
       const id = row.id || this.ids
