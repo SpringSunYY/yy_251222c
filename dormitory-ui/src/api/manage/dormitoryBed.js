@@ -35,6 +35,15 @@ export function updateDormitoryBed(data) {
   })
 }
 
+//分配宿舍床位
+export function allotDormitoryBed(data) {
+  return request({
+    url: '/manage/dormitoryBed/allot',
+    method: 'put',
+    data: data
+  })
+}
+
 // 删除宿舍床位
 export function delDormitoryBed(id) {
   return request({

@@ -2,6 +2,7 @@ package com.lz.manage.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lz.common.core.domain.entity.SysUser;
 import com.lz.common.exception.ServiceException;
@@ -272,6 +273,60 @@ public class DormitoryBedServiceImpl extends ServiceImpl<DormitoryBedMapper, Dor
             successMsg.insert(0, "恭喜您，数据已全部导入成功！共 " + successNum + " 条，数据如下：");
         }
         return successMsg.toString();
+    }
+
+    @Override
+    public int allotDormitoryBed(DormitoryBed dormitoryBed) {
+        DormitoryBed dormitoryBedExist = dormitoryBedMapper.selectDormitoryBedById(dormitoryBed.getId());
+        if (StringUtils.isNull(dormitoryBedExist)) {
+            throw new ServiceException("该床位不存在");
+        }
+        Dormitory dormitory = dormitoryService.selectDormitoryById(dormitoryBed.getDormitoryId());
+        if (StringUtils.isNull(dormitory)) {
+            throw new ServiceException("该宿舍不存在，请删除脏数据");
+        }
+        //判断，如果床位状态不是空闲，且传过来所属用户
+        if (!dormitoryBedExist.getStatus().equals(DormitoryStatusEnum.DORMITORY_STATUS_0.getValue())
+                && StringUtils.isNotNull(dormitoryBed.getBelongUserId())) {
+            throw new ServiceException("该床位已使用，请勿重复分配，如需分配请先解除分配");
+        }
+        //如果没有传来用户表示释放
+        if (StringUtils.isNull(dormitoryBed.getBelongUserId())) {
+            dormitoryBedMapper.update(null,
+                    new LambdaUpdateWrapper<DormitoryBed>()
+                            .set(DormitoryBed::getBelongUserId, null)
+                            .set(DormitoryBed::getStatus, DormitoryStatusEnum.DORMITORY_STATUS_0.getValue())
+                            .eq(DormitoryBed::getId, dormitoryBed.getId())
+            );
+        } else {
+            //传过来用户
+            dormitoryBed.setStatus(DormitoryStatusEnum.DORMITORY_STATUS_1.getValue());
+            //先判断他是否已经有宿舍，如果有则需要更新原宿舍
+            DormitoryBed dormitoryBedExistUser = this.getOne(new LambdaQueryWrapper<DormitoryBed>()
+                    .eq(DormitoryBed::getBelongUserId, dormitoryBed.getBelongUserId()));
+            if (StringUtils.isNotNull(dormitoryBedExistUser)) {
+                Dormitory oldDormitory = dormitoryService.selectDormitoryById(dormitoryBedExistUser.getDormitoryId());
+                dormitoryBedMapper.update(null,
+                        new LambdaUpdateWrapper<DormitoryBed>()
+                                .set(DormitoryBed::getBelongUserId, null)
+                                .set(DormitoryBed::getStatus, DormitoryStatusEnum.DORMITORY_STATUS_0.getValue())
+                                .eq(DormitoryBed::getId, dormitoryBedExistUser.getId()));
+                //计算人数
+                long count = this.count(new LambdaQueryWrapper<DormitoryBed>()
+                        .eq(DormitoryBed::getDormitoryId, dormitoryBedExistUser.getDormitoryId())
+                        .isNotNull(DormitoryBed::getBelongUserId));
+                oldDormitory.setPeopleNumber(count);
+                dormitoryService.updateDormitory(oldDormitory);
+            }
+        }
+        dormitoryBedMapper.updateDormitoryBed(dormitoryBed);
+
+        //计算人数
+        long count = this.count(new LambdaQueryWrapper<DormitoryBed>()
+                .eq(DormitoryBed::getDormitoryId, dormitoryBed.getDormitoryId())
+                .isNotNull(DormitoryBed::getBelongUserId));
+        dormitory.setPeopleNumber(count);
+        return dormitoryService.updateDormitory(dormitory);
     }
 
 }

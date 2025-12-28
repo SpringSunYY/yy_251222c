@@ -155,6 +155,14 @@
           <el-button
             size="mini"
             type="text"
+            icon="el-icon-edit"
+            @click="handleAllot(scope.row)"
+            v-hasPermi="['manage:dormitoryBed:edit']"
+          >分配
+          </el-button>
+          <el-button
+            size="mini"
+            type="text"
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
             v-hasPermi="['manage:dormitoryBed:remove']"
@@ -191,33 +199,60 @@
             </el-radio>
           </el-radio-group>
         </el-form-item>
-<!--        <el-form-item label="所属人" prop="belongUserId">-->
-<!--          <el-select-->
-<!--            v-model="form.belongUserId"-->
-<!--            filterable-->
-<!--            remote-->
-<!--            reserve-keyword-->
-<!--            :remote-method="remoteUserList"-->
-<!--            :loading="userListLoading"-->
-<!--            placeholder="请选择用户名称"-->
-<!--          >-->
-<!--            <el-option-->
-<!--              v-for="item in userList"-->
-<!--              :key="item.userId"-->
-<!--              :label="item.userName"-->
-<!--              :value="item.userId"-->
-<!--            ></el-option>-->
-<!--          </el-select>-->
-<!--        </el-form-item>-->
+        <!--        <el-form-item label="所属人" prop="belongUserId">-->
+        <!--          <el-select-->
+        <!--            v-model="form.belongUserId"-->
+        <!--            filterable-->
+        <!--            remote-->
+        <!--            reserve-keyword-->
+        <!--            :remote-method="remoteUserList"-->
+        <!--            :loading="userListLoading"-->
+        <!--            placeholder="请选择用户名称"-->
+        <!--          >-->
+        <!--            <el-option-->
+        <!--              v-for="item in userList"-->
+        <!--              :key="item.userId"-->
+        <!--              :label="item.userName"-->
+        <!--              :value="item.userId"-->
+        <!--            ></el-option>-->
+        <!--          </el-select>-->
+        <!--        </el-form-item>-->
         <el-form-item label="备注" prop="remark">
           <el-input v-model="form.remark" type="textarea" placeholder="请输入内容"/>
         </el-form-item>
-        <!--        <el-form-item label="创建人" prop="userId">-->
-        <!--          <el-input v-model="form.userId" placeholder="请输入创建人"/>-->
-        <!--        </el-form-item>-->
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="submitForm">确 定</el-button>
+        <el-button @click="cancel">取 消</el-button>
+      </div>
+    </el-dialog>    <!-- 添加或修改宿舍床位对话框 -->
+    <el-dialog :title="title" :visible.sync="openAllot" width="500px" append-to-body>
+      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+        <el-form-item label="所属人" prop="belongUserId">
+          <el-select
+            v-model="form.belongUserId"
+            filterable
+            remote
+            clearable
+            reserve-keyword
+            :remote-method="remoteUserList"
+            :loading="userListLoading"
+            placeholder="请选择用户名称"
+          >
+            <el-option
+              v-for="item in userList"
+              :key="item.userId"
+              :label="item.userName"
+              :value="item.userId"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="备注" prop="remark">
+          <el-input v-model="form.remark" type="textarea" placeholder="请输入内容"/>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="submitFormAllot">确 定</el-button>
         <el-button @click="cancel">取 消</el-button>
       </div>
     </el-dialog>
@@ -250,7 +285,7 @@
 
 <script>
 import {
-  addDormitoryBed,
+  addDormitoryBed, allotDormitoryBed,
   delDormitoryBed,
   getDormitoryBed,
   listDormitoryBed,
@@ -264,6 +299,8 @@ export default {
   dicts: ['dormitory_status'],
   data() {
     return {
+      //打开
+      openAllot: false,
       //宿舍编号
       dormitoryId: '',
       //用户查询
@@ -379,6 +416,22 @@ export default {
     this.getUserList();
   },
   methods: {
+    handleAllot(row) {
+      this.reset();
+      const id = row.id || this.ids
+      getDormitoryBed(id).then(response => {
+        this.form = response.data;
+        this.openAllot = true;
+        this.title = "分配宿舍床位";
+      });
+    },
+    submitFormAllot() {
+      allotDormitoryBed(this.form).then(res => {
+        this.$modal.msgSuccess("分配成功");
+        this.openAllot = false;
+        this.getList();
+      })
+    },
     getUserList() {
       this.userListLoading = true;
       listUserByRole(this.userListQuery).then(response => {
@@ -407,6 +460,7 @@ export default {
     // 取消按钮
     cancel() {
       this.open = false;
+      this.openAllot = false;
       this.reset();
     },
     // 表单重置

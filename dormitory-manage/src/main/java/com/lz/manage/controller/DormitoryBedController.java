@@ -106,6 +106,17 @@ public class DormitoryBedController extends BaseController
     }
 
     /**
+     * 分配床位
+     */
+    @PreAuthorize("@ss.hasPermi('manage:dormitoryBed:edit')")
+    @Log(title = "宿舍床位", businessType = BusinessType.UPDATE)
+    @PutMapping("/allot")
+    public AjaxResult allot(@RequestBody DormitoryBedEdit dormitoryBedEdit){
+        DormitoryBed dormitoryBed = DormitoryBedEdit.editToObj(dormitoryBedEdit);
+        return toAjax(dormitoryBedService.allotDormitoryBed(dormitoryBed));
+    }
+
+    /**
      * 删除宿舍床位
      */
     @PreAuthorize("@ss.hasPermi('manage:dormitoryBed:remove')")

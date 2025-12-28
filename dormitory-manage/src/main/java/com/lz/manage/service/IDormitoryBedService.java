@@ -9,7 +9,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 /**
  * 宿舍床位Service接口
- * 
+ *
  * @author YY
  * @date 2025-12-27
  */
@@ -18,7 +18,7 @@ public interface IDormitoryBedService extends IService<DormitoryBed>
     //region mybatis代码
     /**
      * 查询宿舍床位
-     * 
+     *
      * @param id 宿舍床位主键
      * @return 宿舍床位
      */
@@ -26,7 +26,7 @@ public interface IDormitoryBedService extends IService<DormitoryBed>
 
     /**
      * 查询宿舍床位列表
-     * 
+     *
      * @param dormitoryBed 宿舍床位
      * @return 宿舍床位集合
      */
@@ -34,7 +34,7 @@ public interface IDormitoryBedService extends IService<DormitoryBed>
 
     /**
      * 新增宿舍床位
-     * 
+     *
      * @param dormitoryBed 宿舍床位
      * @return 结果
      */
@@ -42,7 +42,7 @@ public interface IDormitoryBedService extends IService<DormitoryBed>
 
     /**
      * 修改宿舍床位
-     * 
+     *
      * @param dormitoryBed 宿舍床位
      * @return 结果
      */
@@ -50,7 +50,7 @@ public interface IDormitoryBedService extends IService<DormitoryBed>
 
     /**
      * 批量删除宿舍床位
-     * 
+     *
      * @param ids 需要删除的宿舍床位主键集合
      * @return 结果
      */
@@ -58,7 +58,7 @@ public interface IDormitoryBedService extends IService<DormitoryBed>
 
     /**
      * 删除宿舍床位信息
-     * 
+     *
      * @param id 宿舍床位主键
      * @return 结果
      */
@@ -89,4 +89,6 @@ public interface IDormitoryBedService extends IService<DormitoryBed>
      * @return 结果
      */
     public String importDormitoryBedData(List<DormitoryBed> dormitoryBedList, Boolean isUpdateSupport, String operName);
+
+    int allotDormitoryBed(DormitoryBed dormitoryBed);
 }
