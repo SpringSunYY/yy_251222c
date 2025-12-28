@@ -9,12 +9,14 @@ import com.lz.common.exception.ServiceException;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.SecurityUtils;
 import com.lz.common.utils.StringUtils;
+import com.lz.common.utils.bean.BeanUtils;
 import com.lz.common.utils.bean.BeanValidators;
 import com.lz.common.utils.spring.SpringUtils;
 import com.lz.manage.mapper.DormitoryBedMapper;
 import com.lz.manage.model.domain.Building;
 import com.lz.manage.model.domain.Dormitory;
 import com.lz.manage.model.domain.DormitoryBed;
+import com.lz.manage.model.domain.DormitoryBedHistory;
 import com.lz.manage.model.dto.dormitoryBed.DormitoryBedQuery;
 import com.lz.manage.model.enums.DormitoryStatusEnum;
 import com.lz.manage.model.vo.dormitoryBed.DormitoryBedVo;
@@ -26,7 +28,6 @@ import com.lz.system.service.ISysUserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.annotation.Resource;
 import javax.validation.Validator;
@@ -61,10 +62,7 @@ public class DormitoryBedServiceImpl extends ServiceImpl<DormitoryBedMapper, Dor
     private IDormitoryService dormitoryService;
 
     @Resource
-    private TransactionTemplate transactionTemplate;
-
-    @Resource
-    private IDormitoryBedHistoryService departmentBedHistoryService;
+    private IDormitoryBedHistoryService dormitoryBedHistoryService;
 
     {
         validator = SpringUtils.getBean(Validator.class);
@@ -288,7 +286,7 @@ public class DormitoryBedServiceImpl extends ServiceImpl<DormitoryBedMapper, Dor
         //判断，如果床位状态不是空闲，且传过来所属用户
         if (!dormitoryBedExist.getStatus().equals(DormitoryStatusEnum.DORMITORY_STATUS_0.getValue())
                 && StringUtils.isNotNull(dormitoryBed.getBelongUserId())) {
-            throw new ServiceException("该床位已使用，请勿重复分配，如需分配请先解除分配");
+            throw new ServiceException("该床位已使用或已分配，请勿分配，如需分配请先解除分配或待床位正常");
         }
         //如果没有传来用户表示释放
         if (StringUtils.isNull(dormitoryBed.getBelongUserId())) {
@@ -320,7 +318,10 @@ public class DormitoryBedServiceImpl extends ServiceImpl<DormitoryBedMapper, Dor
             }
         }
         dormitoryBedMapper.updateDormitoryBed(dormitoryBed);
-
+        //如果更新了，则添加历史
+        DormitoryBedHistory dormitoryBedHistory = new DormitoryBedHistory();
+        BeanUtils.copyProperties(dormitoryBed, dormitoryBedHistory);
+        dormitoryBedHistoryService.insertDormitoryBedHistory(dormitoryBedHistory);
         //计算人数
         long count = this.count(new LambdaQueryWrapper<DormitoryBed>()
                 .eq(DormitoryBed::getDormitoryId, dormitoryBed.getDormitoryId())
