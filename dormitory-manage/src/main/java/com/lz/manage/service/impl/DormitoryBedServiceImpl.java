@@ -296,6 +296,12 @@ public class DormitoryBedServiceImpl extends ServiceImpl<DormitoryBedMapper, Dor
                             .set(DormitoryBed::getStatus, DormitoryStatusEnum.DORMITORY_STATUS_0.getValue())
                             .eq(DormitoryBed::getId, dormitoryBed.getId())
             );
+            //计算人数
+            long count = this.count(new LambdaQueryWrapper<DormitoryBed>()
+                    .eq(DormitoryBed::getDormitoryId, dormitoryBed.getDormitoryId())
+                    .isNotNull(DormitoryBed::getBelongUserId));
+            dormitory.setPeopleNumber(count);
+            return dormitoryService.updateDormitory(dormitory);
         } else {
             //传过来用户
             dormitoryBed.setStatus(DormitoryStatusEnum.DORMITORY_STATUS_1.getValue());
@@ -320,7 +326,7 @@ public class DormitoryBedServiceImpl extends ServiceImpl<DormitoryBedMapper, Dor
         dormitoryBedMapper.updateDormitoryBed(dormitoryBed);
         //如果更新了，则添加历史
         DormitoryBedHistory dormitoryBedHistory = new DormitoryBedHistory();
-        BeanUtils.copyProperties(dormitoryBedExist, dormitoryBedHistory);
+        BeanUtils.copyProperties(dormitoryBed, dormitoryBedHistory);
         dormitoryBedHistoryService.insertDormitoryBedHistory(dormitoryBedHistory);
         //计算人数
         long count = this.count(new LambdaQueryWrapper<DormitoryBed>()

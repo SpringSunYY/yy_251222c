@@ -124,7 +124,7 @@ public class DormitoryApplyServiceImpl extends ServiceImpl<DormitoryApplyMapper,
         return dormitoryApplyMapper.insertDormitoryApply(dormitoryApply);
     }
 
-    private void checkDormitoryApply(DormitoryApply dormitoryApply) {
+    private DormitoryBed checkDormitoryApply(DormitoryApply dormitoryApply) {
         //首先查询宿舍床位是否存在
         DormitoryBed dormitoryBed = dormitoryBedService.selectDormitoryBedById(dormitoryApply.getBedId());
         if (StringUtils.isNull(dormitoryBed)) {
@@ -135,6 +135,7 @@ public class DormitoryApplyServiceImpl extends ServiceImpl<DormitoryApplyMapper,
                 || StringUtils.isNotNull(dormitoryBed.getBelongUserId())) {
             throw new ServiceException("该床位已使用或已分配，请勿分配，如需分配请先解除分配或待床位正常");
         }
+        return dormitoryBed;
     }
 
     /**
@@ -145,7 +146,7 @@ public class DormitoryApplyServiceImpl extends ServiceImpl<DormitoryApplyMapper,
      */
     @Override
     public int updateDormitoryApply(DormitoryApply dormitoryApply) {
-        checkDormitoryApply(dormitoryApply);
+        DormitoryBed dormitoryBed = checkDormitoryApply(dormitoryApply);
         //先查询数据库是否已经同意
         DormitoryApply dormitoryApplyDb = dormitoryApplyMapper.selectDormitoryApplyById(dormitoryApply.getId());
         if (dormitoryApplyDb.getStatus().equals(ApplyStatusEnum.APPLY_STATUS_1.getValue())) {
@@ -153,7 +154,6 @@ public class DormitoryApplyServiceImpl extends ServiceImpl<DormitoryApplyMapper,
         }
         //如果这里传过来的是同意状态
         if (dormitoryApply.getStatus().equals(ApplyStatusEnum.APPLY_STATUS_1.getValue())) {
-            DormitoryBed dormitoryBed = new DormitoryBed();
             dormitoryBed.setId(dormitoryApply.getBedId());
             dormitoryBed.setBelongUserId(dormitoryApply.getUserId());
             dormitoryBed.setDormitoryId(dormitoryApply.getDormitoryId());

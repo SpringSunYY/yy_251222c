@@ -110,18 +110,20 @@
                        prop="buildingName"/>
       <el-table-column label="宿舍" :show-overflow-tooltip="true" align="center" v-if="columns[2].visible"
                        prop="dormitoryName"/>
-      <el-table-column label="所属人" :show-overflow-tooltip="true" align="center" v-if="columns[3].visible"
+      <el-table-column label="床位编号" :show-overflow-tooltip="true" align="center" v-if="columns[3].visible"
+                       prop="bedNum"/>
+      <el-table-column label="所属人" :show-overflow-tooltip="true" align="center" v-if="columns[4].visible"
                        prop="belongUserName"/>
-      <el-table-column label="备注" :show-overflow-tooltip="true" align="center" v-if="columns[4].visible"
+      <el-table-column label="备注" :show-overflow-tooltip="true" align="center" v-if="columns[5].visible"
                        prop="remark"/>
-      <el-table-column label="创建人" :show-overflow-tooltip="true" align="center" v-if="columns[5].visible"
+      <el-table-column label="创建人" :show-overflow-tooltip="true" align="center" v-if="columns[6].visible"
                        prop="userName"/>
-      <el-table-column label="创建时间" align="center" v-if="columns[6].visible" prop="createTime" width="180">
+      <el-table-column label="创建时间" align="center" v-if="columns[7].visible" prop="createTime" width="180">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="更新时间" align="center" v-if="columns[7].visible" prop="updateTime" width="180">
+      <el-table-column label="更新时间" align="center" v-if="columns[8].visible" prop="updateTime" width="180">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d}') }}</span>
         </template>
@@ -228,11 +230,12 @@ export default {
         {key: 0, label: '编号', visible: true},
         {key: 1, label: '楼栋', visible: true},
         {key: 2, label: '宿舍', visible: true},
-        {key: 3, label: '所属人', visible: true},
-        {key: 4, label: '备注', visible: true},
-        {key: 5, label: '创建人', visible: true},
-        {key: 6, label: '创建时间', visible: true},
-        {key: 7, label: '更新时间', visible: true},
+        {key: 3, label: '床位编号', visible: true},
+        {key: 4, label: '所属人', visible: true},
+        {key: 5, label: '备注', visible: true},
+        {key: 6, label: '创建人', visible: true},
+        {key: 7, label: '创建时间', visible: true},
+        {key: 8, label: '更新时间', visible: true},
       ],
       // 遮罩层
       loading: true,
