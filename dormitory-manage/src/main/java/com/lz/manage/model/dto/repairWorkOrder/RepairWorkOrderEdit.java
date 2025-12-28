@@ -30,7 +30,7 @@ public class RepairWorkOrderEdit implements Serializable
     private Long dealWithId;
 
     /** 处理时间 */
-    private Long dealWithTime;
+    private Date dealWithTime;
 
     /** 处理费用 */
     private Long dealWithCost;

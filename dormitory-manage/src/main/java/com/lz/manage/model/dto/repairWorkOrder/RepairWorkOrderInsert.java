@@ -1,11 +1,12 @@
 package com.lz.manage.model.dto.repairWorkOrder;
 
-import java.io.Serializable;
-import java.util.Date;
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.lz.manage.model.domain.RepairWorkOrder;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
-import com.lz.manage.model.domain.RepairWorkOrder;
+
+import java.io.Serializable;
+import java.util.Date;
+
 /**
  * 维修工单Vo对象 tb_repair_work_order
  *
@@ -13,38 +14,57 @@ import com.lz.manage.model.domain.RepairWorkOrder;
  * @date 2025-12-27
  */
 @Data
-public class RepairWorkOrderInsert implements Serializable
-{
+public class RepairWorkOrderInsert implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    /** 报修 */
+    /**
+     * 报修
+     */
     private Long repairId;
 
-    /** 工单状态 */
+    /**
+     * 工单状态
+     */
     private String status;
 
-    /** 维修工 */
+    /**
+     * 维修工
+     */
     private Long dealWithId;
 
-    /** 处理时间 */
-    private Long dealWithTime;
+    /**
+     * 处理时间
+     */
+    private Date dealWithTime;
 
-    /** 处理费用 */
+    /**
+     * 处理费用
+     */
     private Long dealWithCost;
 
-    /** 处理内容 */
+    /**
+     * 处理内容
+     */
     private String dealWithContent;
 
-    /** 处理照片 */
+    /**
+     * 处理照片
+     */
     private String dealWithImage;
 
-    /** 完成时间 */
+    /**
+     * 完成时间
+     */
     private Date completedTime;
 
-    /** 备注 */
+    /**
+     * 备注
+     */
     private String remark;
 
-    /** 创建人 */
+    /**
+     * 创建人
+     */
     private Long userId;
 
     /**

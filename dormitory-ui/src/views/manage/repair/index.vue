@@ -229,6 +229,14 @@
           <el-button
             size="mini"
             type="text"
+            icon="el-icon-edit"
+            @click="handleWorkOrder(scope.row)"
+            v-hasPermi="['manage:repairWorkOrder:add']"
+          >处理
+          </el-button>
+          <el-button
+            size="mini"
+            type="text"
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
             v-hasPermi="['manage:repair:remove']"
@@ -323,16 +331,16 @@
             </el-radio>
           </el-radio-group>
         </el-form-item>
-<!--        <el-form-item label="报修状态" prop="status">-->
-<!--          <el-radio-group v-model="form.status">-->
-<!--            <el-radio-->
-<!--              v-for="dict in dict.type.repair_status"-->
-<!--              :key="dict.value"-->
-<!--              :label="dict.value"-->
-<!--            >{{ dict.label }}-->
-<!--            </el-radio>-->
-<!--          </el-radio-group>-->
-<!--        </el-form-item>-->
+        <!--        <el-form-item label="报修状态" prop="status">-->
+        <!--          <el-radio-group v-model="form.status">-->
+        <!--            <el-radio-->
+        <!--              v-for="dict in dict.type.repair_status"-->
+        <!--              :key="dict.value"-->
+        <!--              :label="dict.value"-->
+        <!--            >{{ dict.label }}-->
+        <!--            </el-radio>-->
+        <!--          </el-radio-group>-->
+        <!--        </el-form-item>-->
         <el-form-item label="报修位置" prop="repairAddress">
           <el-select v-model="form.repairAddress" placeholder="请选择报修位置">
             <el-option
@@ -363,26 +371,26 @@
         <el-form-item label="联系电话" prop="contactPhone">
           <el-input v-model="form.contactPhone" placeholder="请输入联系电话"/>
         </el-form-item>
-<!--        <el-form-item label="完成时间" prop="completedTime">-->
-<!--          <el-date-picker clearable-->
-<!--                          v-model="form.completedTime"-->
-<!--                          type="date"-->
-<!--                          value-format="yyyy-MM-dd"-->
-<!--                          placeholder="请选择完成时间">-->
-<!--          </el-date-picker>-->
-<!--        </el-form-item>-->
-<!--        <el-form-item label="处理费用" prop="dealWithCost">-->
-<!--          <el-input v-model="form.dealWithCost" placeholder="请输入处理费用"/>-->
-<!--        </el-form-item>-->
+        <!--        <el-form-item label="完成时间" prop="completedTime">-->
+        <!--          <el-date-picker clearable-->
+        <!--                          v-model="form.completedTime"-->
+        <!--                          type="date"-->
+        <!--                          value-format="yyyy-MM-dd"-->
+        <!--                          placeholder="请选择完成时间">-->
+        <!--          </el-date-picker>-->
+        <!--        </el-form-item>-->
+        <!--        <el-form-item label="处理费用" prop="dealWithCost">-->
+        <!--          <el-input v-model="form.dealWithCost" placeholder="请输入处理费用"/>-->
+        <!--        </el-form-item>-->
         <el-form-item label="备注" prop="remark">
           <el-input v-model="form.remark" type="textarea" placeholder="请输入内容"/>
         </el-form-item>
-<!--        <el-form-item label="处理人" prop="dealWithId">-->
-<!--          <el-input v-model="form.dealWithId" placeholder="请输入处理人"/>-->
-<!--        </el-form-item>-->
-<!--        <el-form-item label="创建人" prop="userId">-->
-<!--          <el-input v-model="form.userId" placeholder="请输入创建人"/>-->
-<!--        </el-form-item>-->
+        <!--        <el-form-item label="处理人" prop="dealWithId">-->
+        <!--          <el-input v-model="form.dealWithId" placeholder="请输入处理人"/>-->
+        <!--        </el-form-item>-->
+        <!--        <el-form-item label="创建人" prop="userId">-->
+        <!--          <el-input v-model="form.userId" placeholder="请输入创建人"/>-->
+        <!--        </el-form-item>-->
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="submitForm">确 定</el-button>
@@ -413,6 +421,38 @@
         <el-button @click="upload.open = false">取 消</el-button>
       </div>
     </el-dialog>
+
+    <!-- 添加或修改维修工单对话框 -->
+    <el-dialog :title="title" :visible.sync="openWorkOrder" width="500px" append-to-body>
+      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+        <el-form-item label="维修工" prop="dealWithId">
+          <el-select
+            v-model="form.dealWithId"
+            filterable
+            remote
+            clearable
+            reserve-keyword
+            :remote-method="remoteUserList"
+            :loading="userListLoading"
+            placeholder="请选择用户名称"
+          >
+            <el-option
+              v-for="item in userList"
+              :key="item.userId"
+              :label="item.userName"
+              :value="item.userId"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="备注" prop="remark">
+          <el-input v-model="form.remark" type="textarea" placeholder="请输入内容"/>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="submitFormWorkOrder">确 定</el-button>
+        <el-button @click="cancel">取 消</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -430,12 +470,24 @@ import {getToken} from "@/utils/auth";
 import {listBuilding} from "@/api/manage/building";
 import {listDormitory} from "@/api/manage/dormitory";
 import {listDormitoryBed} from "@/api/manage/dormitoryBed";
+import {listUserByRole} from "@/api/system/user";
+import {addRepairWorkOrder} from "@/api/manage/repairWorkOrder";
 
 export default {
   name: "Repair",
   dicts: ['repair_type', 'repair_status', 'abnormal_status', 'repair_address'],
   data() {
     return {
+      //用户查询
+      userList: [],
+      userListLoading: false,
+      userListQuery: {
+        pageNum: 1,
+        pageSize: 100,
+        roleId: 100
+      },
+      //打开工单
+      openWorkOrder: false,
       //楼栋
       buildingList: [],
       buildingQuery: {
@@ -573,8 +625,34 @@ export default {
     this.getBuildingList();
     this.getDormitoryList();
     this.getDormitoryBedList();
+    this.getUserList();
   },
   methods: {
+    getUserList() {
+      this.userListLoading = true;
+      listUserByRole(this.userListQuery).then(response => {
+        this.userList = response.rows;
+        this.userListLoading = false;
+      });
+    },
+    remoteUserList(query) {
+      this.userListQuery.userName = query;
+      this.getUserList();
+    },
+    //打开工单
+    handleWorkOrder(row) {
+      this.reset();
+      this.openWorkOrder = true;
+      this.title = "分配维修工";
+      this.form.repairId = row.id;
+    },
+    submitFormWorkOrder() {
+      addRepairWorkOrder(this.form).then(response => {
+        this.$modal.msgSuccess("分配成功");
+        this.openWorkOrder = false;
+        this.getList();
+      })
+    },
     //获取楼栋信息
     getBuildingList() {
       this.buildingLoading = true;
