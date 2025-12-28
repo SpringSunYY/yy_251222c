@@ -23,6 +23,8 @@ public class DormitoryBedInsert implements Serializable
     /** 宿舍 */
     private Long dormitoryId;
 
+        private String bedNum;
+
     /** 床位状态 */
     private String status;
 

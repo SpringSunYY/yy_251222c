@@ -1,11 +1,11 @@
 package com.lz.manage.model.dto.dormitoryBed;
 
-import java.io.Serializable;
-import java.util.Date;
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.lz.manage.model.domain.DormitoryBed;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
-import com.lz.manage.model.domain.DormitoryBed;
+
+import java.io.Serializable;
+
 /**
  * 宿舍床位Vo对象 tb_dormitory_bed
  *
@@ -13,29 +13,44 @@ import com.lz.manage.model.domain.DormitoryBed;
  * @date 2025-12-27
  */
 @Data
-public class DormitoryBedEdit implements Serializable
-{
+public class DormitoryBedEdit implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    /** 编号 */
+    /**
+     * 编号
+     */
     private Long id;
 
-    /** 楼栋 */
+    /**
+     * 楼栋
+     */
     private Long buildingId;
 
-    /** 宿舍 */
+    /**
+     * 宿舍
+     */
     private Long dormitoryId;
 
-    /** 床位状态 */
+    private String bedNum;
+
+    /**
+     * 床位状态
+     */
     private String status;
 
-    /** 所属人 */
+    /**
+     * 所属人
+     */
     private Long belongUserId;
 
-    /** 备注 */
+    /**
+     * 备注
+     */
     private String remark;
 
-    /** 创建人 */
+    /**
+     * 创建人
+     */
     private Long userId;
 
     /**

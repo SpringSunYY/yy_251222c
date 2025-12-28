@@ -1,29 +1,36 @@
 package com.lz.manage.service.impl;
 
-import java.util.*;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.stream.Collectors;
-import javax.validation.Validator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import com.lz.common.utils.StringUtils;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.lz.common.core.domain.entity.SysUser;
 import com.lz.common.exception.ServiceException;
+import com.lz.common.utils.DateUtils;
+import com.lz.common.utils.SecurityUtils;
+import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.bean.BeanValidators;
 import com.lz.common.utils.spring.SpringUtils;
-import java.util.Date;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.lz.common.utils.DateUtils;
-import javax.annotation.Resource;
-import org.springframework.stereotype.Service;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.lz.manage.mapper.DormitoryBedMapper;
+import com.lz.manage.model.domain.Building;
+import com.lz.manage.model.domain.Dormitory;
 import com.lz.manage.model.domain.DormitoryBed;
-import com.lz.manage.service.IDormitoryBedService;
 import com.lz.manage.model.dto.dormitoryBed.DormitoryBedQuery;
+import com.lz.manage.model.enums.DormitoryStatusEnum;
 import com.lz.manage.model.vo.dormitoryBed.DormitoryBedVo;
+import com.lz.manage.service.IBuildingService;
+import com.lz.manage.service.IDormitoryBedHistoryService;
+import com.lz.manage.service.IDormitoryBedService;
+import com.lz.manage.service.IDormitoryService;
+import com.lz.system.service.ISysUserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.support.TransactionTemplate;
+
+import javax.annotation.Resource;
+import javax.validation.Validator;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 宿舍床位Service业务层处理
@@ -32,21 +39,38 @@ import com.lz.manage.model.vo.dormitoryBed.DormitoryBedVo;
  * @date 2025-12-27
  */
 @Service
-public class DormitoryBedServiceImpl extends ServiceImpl<DormitoryBedMapper, DormitoryBed> implements IDormitoryBedService
-{
+public class DormitoryBedServiceImpl extends ServiceImpl<DormitoryBedMapper, DormitoryBed> implements IDormitoryBedService {
     private static final Logger log = LoggerFactory.getLogger(DormitoryBedServiceImpl.class);
 
-    /** 导入用户数据校验器 */
+    /**
+     * 导入用户数据校验器
+     */
     private static Validator validator;
 
     @Resource
     private DormitoryBedMapper dormitoryBedMapper;
+
+    @Resource
+    private ISysUserService sysUserService;
+
+    @Resource
+    private IBuildingService buildingService;
+
+    @Resource
+    private IDormitoryService dormitoryService;
+
+    @Resource
+    private TransactionTemplate transactionTemplate;
+
+    @Resource
+    private IDormitoryBedHistoryService departmentBedHistoryService;
 
     {
         validator = SpringUtils.getBean(Validator.class);
     }
 
     //region mybatis代码
+
     /**
      * 查询宿舍床位
      *
@@ -54,8 +78,7 @@ public class DormitoryBedServiceImpl extends ServiceImpl<DormitoryBedMapper, Dor
      * @return 宿舍床位
      */
     @Override
-    public DormitoryBed selectDormitoryBedById(Long id)
-    {
+    public DormitoryBed selectDormitoryBedById(Long id) {
         return dormitoryBedMapper.selectDormitoryBedById(id);
     }
 
@@ -66,9 +89,28 @@ public class DormitoryBedServiceImpl extends ServiceImpl<DormitoryBedMapper, Dor
      * @return 宿舍床位
      */
     @Override
-    public List<DormitoryBed> selectDormitoryBedList(DormitoryBed dormitoryBed)
-    {
-        return dormitoryBedMapper.selectDormitoryBedList(dormitoryBed);
+    public List<DormitoryBed> selectDormitoryBedList(DormitoryBed dormitoryBed) {
+        List<DormitoryBed> dormitoryBeds = dormitoryBedMapper.selectDormitoryBedList(dormitoryBed);
+        for (DormitoryBed info : dormitoryBeds) {
+            SysUser sysUser = sysUserService.selectUserById(info.getUserId());
+            if (StringUtils.isNotNull(sysUser)) {
+                info.setUserName(sysUser.getUserName());
+            }
+            Building building = buildingService.selectBuildingById(info.getBuildingId());
+            if (StringUtils.isNotNull(building)) {
+                info.setBuildingName(building.getName());
+            }
+            Dormitory dormitory = dormitoryService.selectDormitoryById(info.getDormitoryId());
+            if (StringUtils.isNotNull(dormitory)) {
+                info.setDormitoryName(dormitory.getName());
+            }
+
+            SysUser belongUser = sysUserService.selectUserById(info.getBelongUserId());
+            if (StringUtils.isNotNull(belongUser)) {
+                info.setBelongUserName(belongUser.getUserName());
+            }
+        }
+        return dormitoryBeds;
     }
 
     /**
@@ -78,10 +120,28 @@ public class DormitoryBedServiceImpl extends ServiceImpl<DormitoryBedMapper, Dor
      * @return 结果
      */
     @Override
-    public int insertDormitoryBed(DormitoryBed dormitoryBed)
-    {
+    public int insertDormitoryBed(DormitoryBed dormitoryBed) {
+        Dormitory dormitory = checkDormitoryBedAdd(dormitoryBed);
+        //如果床位还没大于最大限制
+        long count = this.count(new LambdaQueryWrapper<DormitoryBed>()
+                .eq(DormitoryBed::getDormitoryId, dormitory.getId()));
+        if (count >= dormitory.getPeopleNumberLimit()) {
+            throw new ServiceException("该宿舍床位已满,不可添加床位");
+        }
+        dormitoryBed.setStatus(DormitoryStatusEnum.DORMITORY_STATUS_0.getValue());
+        dormitoryBed.setBuildingId(dormitory.getBuildingId());
+        dormitoryBed.setUserId(SecurityUtils.getUserId());
         dormitoryBed.setCreateTime(DateUtils.getNowDate());
         return dormitoryBedMapper.insertDormitoryBed(dormitoryBed);
+    }
+
+    private Dormitory checkDormitoryBedAdd(DormitoryBed dormitoryBed) {
+        //查询宿舍是否存在
+        Dormitory dormitory = dormitoryService.selectDormitoryById(dormitoryBed.getDormitoryId());
+        if (StringUtils.isNull(dormitory)) {
+            throw new ServiceException("宿舍不存在");
+        }
+        return dormitory;
     }
 
     /**
@@ -91,8 +151,7 @@ public class DormitoryBedServiceImpl extends ServiceImpl<DormitoryBedMapper, Dor
      * @return 结果
      */
     @Override
-    public int updateDormitoryBed(DormitoryBed dormitoryBed)
-    {
+    public int updateDormitoryBed(DormitoryBed dormitoryBed) {
         dormitoryBed.setUpdateTime(DateUtils.getNowDate());
         return dormitoryBedMapper.updateDormitoryBed(dormitoryBed);
     }
@@ -104,8 +163,7 @@ public class DormitoryBedServiceImpl extends ServiceImpl<DormitoryBedMapper, Dor
      * @return 结果
      */
     @Override
-    public int deleteDormitoryBedByIds(Long[] ids)
-    {
+    public int deleteDormitoryBedByIds(Long[] ids) {
         return dormitoryBedMapper.deleteDormitoryBedByIds(ids);
     }
 
@@ -116,13 +174,13 @@ public class DormitoryBedServiceImpl extends ServiceImpl<DormitoryBedMapper, Dor
      * @return 结果
      */
     @Override
-    public int deleteDormitoryBedById(Long id)
-    {
+    public int deleteDormitoryBedById(Long id) {
         return dormitoryBedMapper.deleteDormitoryBedById(id);
     }
+
     //endregion
     @Override
-    public QueryWrapper<DormitoryBed> getQueryWrapper(DormitoryBedQuery dormitoryBedQuery){
+    public QueryWrapper<DormitoryBed> getQueryWrapper(DormitoryBedQuery dormitoryBedQuery) {
         QueryWrapper<DormitoryBed> queryWrapper = new QueryWrapper<>();
         //如果不使用params可以删除
         Map<String, Object> params = dormitoryBedQuery.getParams();
@@ -130,19 +188,19 @@ public class DormitoryBedServiceImpl extends ServiceImpl<DormitoryBedMapper, Dor
             params = new HashMap<>();
         }
         Long id = dormitoryBedQuery.getId();
-        queryWrapper.eq( StringUtils.isNotNull(id),"id",id);
+        queryWrapper.eq(StringUtils.isNotNull(id), "id", id);
 
         Long buildingId = dormitoryBedQuery.getBuildingId();
-        queryWrapper.eq( StringUtils.isNotNull(buildingId),"building_id",buildingId);
+        queryWrapper.eq(StringUtils.isNotNull(buildingId), "building_id", buildingId);
 
         Long dormitoryId = dormitoryBedQuery.getDormitoryId();
-        queryWrapper.eq( StringUtils.isNotNull(dormitoryId),"dormitory_id",dormitoryId);
+        queryWrapper.eq(StringUtils.isNotNull(dormitoryId), "dormitory_id", dormitoryId);
 
         String status = dormitoryBedQuery.getStatus();
-        queryWrapper.eq(StringUtils.isNotEmpty(status) ,"status",status);
+        queryWrapper.eq(StringUtils.isNotEmpty(status), "status", status);
 
         Date createTime = dormitoryBedQuery.getCreateTime();
-        queryWrapper.between(StringUtils.isNotNull(params.get("beginCreateTime"))&&StringUtils.isNotNull(params.get("endCreateTime")),"create_time",params.get("beginCreateTime"),params.get("endCreateTime"));
+        queryWrapper.between(StringUtils.isNotNull(params.get("beginCreateTime")) && StringUtils.isNotNull(params.get("endCreateTime")), "create_time", params.get("beginCreateTime"), params.get("endCreateTime"));
 
         return queryWrapper;
     }
@@ -159,58 +217,46 @@ public class DormitoryBedServiceImpl extends ServiceImpl<DormitoryBedMapper, Dor
      * 导入宿舍床位数据
      *
      * @param dormitoryBedList 宿舍床位数据列表
-     * @param isUpdateSupport 是否更新支持，如果已存在，则进行更新数据
-     * @param operName 操作用户
+     * @param isUpdateSupport  是否更新支持，如果已存在，则进行更新数据
+     * @param operName         操作用户
      * @return 结果
      */
     @Override
-    public String importDormitoryBedData(List<DormitoryBed> dormitoryBedList, Boolean isUpdateSupport, String operName)
-    {
-        if (StringUtils.isNull(dormitoryBedList) || dormitoryBedList.size() == 0)
-        {
+    public String importDormitoryBedData(List<DormitoryBed> dormitoryBedList, Boolean isUpdateSupport, String operName) {
+        if (StringUtils.isNull(dormitoryBedList) || dormitoryBedList.size() == 0) {
             throw new ServiceException("导入宿舍床位数据不能为空！");
         }
         int successNum = 0;
         int failureNum = 0;
         StringBuilder successMsg = new StringBuilder();
         StringBuilder failureMsg = new StringBuilder();
-        for (DormitoryBed dormitoryBed : dormitoryBedList)
-        {
-            try
-            {
+        for (DormitoryBed dormitoryBed : dormitoryBedList) {
+            try {
                 // 验证是否存在这个宿舍床位
                 Long id = dormitoryBed.getId();
                 DormitoryBed dormitoryBedExist = null;
-                if (StringUtils.isNotNull(id))
-                {
+                if (StringUtils.isNotNull(id)) {
                     dormitoryBedExist = dormitoryBedMapper.selectDormitoryBedById(id);
                 }
-                if (StringUtils.isNull(dormitoryBedExist))
-                {
+                if (StringUtils.isNull(dormitoryBedExist)) {
                     BeanValidators.validateWithException(validator, dormitoryBed);
                     dormitoryBed.setCreateTime(DateUtils.getNowDate());
                     dormitoryBedMapper.insertDormitoryBed(dormitoryBed);
                     successNum++;
                     String idStr = StringUtils.isNotNull(id) ? id.toString() : "新记录";
                     successMsg.append("<br/>" + successNum + "、宿舍床位 " + idStr + " 导入成功");
-                }
-                else if (isUpdateSupport)
-                {
+                } else if (isUpdateSupport) {
                     BeanValidators.validateWithException(validator, dormitoryBed);
                     dormitoryBed.setUpdateTime(DateUtils.getNowDate());
                     dormitoryBedMapper.updateDormitoryBed(dormitoryBed);
                     successNum++;
                     successMsg.append("<br/>" + successNum + "、宿舍床位 " + id.toString() + " 更新成功");
-                }
-                else
-                {
+                } else {
                     failureNum++;
                     String idStr = StringUtils.isNotNull(id) ? id.toString() : "未知";
                     failureMsg.append("<br/>" + failureNum + "、宿舍床位 " + idStr + " 已存在");
                 }
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 failureNum++;
                 Long id = dormitoryBed.getId();
                 String idStr = StringUtils.isNotNull(id) ? id.toString() : "未知";
@@ -219,13 +265,10 @@ public class DormitoryBedServiceImpl extends ServiceImpl<DormitoryBedMapper, Dor
                 log.error(msg, e);
             }
         }
-        if (failureNum > 0)
-        {
+        if (failureNum > 0) {
             failureMsg.insert(0, "很抱歉，导入失败！共 " + failureNum + " 条数据格式不正确，错误如下：");
             throw new ServiceException(failureMsg.toString());
-        }
-        else
-        {
+        } else {
             successMsg.insert(0, "恭喜您，数据已全部导入成功！共 " + successNum + " 条，数据如下：");
         }
         return successMsg.toString();

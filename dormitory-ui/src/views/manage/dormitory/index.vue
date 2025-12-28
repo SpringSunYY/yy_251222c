@@ -118,7 +118,13 @@
       <el-table-column label="编号" align="center" v-if="columns[0].visible" prop="id"/>
       <el-table-column label="楼栋" :show-overflow-tooltip="true" align="center" v-if="columns[1].visible"
                        prop="buildingName"/>
-      <el-table-column label="名称" :show-overflow-tooltip="true" align="center" v-if="columns[2].visible" prop="name"/>
+      <el-table-column label="名称" :show-overflow-tooltip="true" align="center" v-if="columns[2].visible" prop="name">
+        <template slot-scope="scope">
+          <router-link :to="{ name: 'DormitoryBed', query: { dormitoryId: scope.row.id } }" class="link-type">
+            <span>{{ scope.row.name }}</span>
+          </router-link>
+        </template>
+      </el-table-column>
       <el-table-column label="人数限制" :show-overflow-tooltip="true" align="center" v-if="columns[3].visible"
                        prop="peopleNumberLimit"/>
       <el-table-column label="宿舍人数" :show-overflow-tooltip="true" align="center" v-if="columns[4].visible"
