@@ -61,27 +61,27 @@
     </el-form>
 
     <el-row :gutter="10" class="mb8">
-      <el-col :span="1.5">
-        <el-button
-          type="primary"
-          plain
-          icon="el-icon-plus"
-          size="mini"
-          @click="handleAdd"
-          v-hasPermi="['manage:dormitoryApply:add']"
-        >新增</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="success"
-          plain
-          icon="el-icon-edit"
-          size="mini"
-          :disabled="single"
-          @click="handleUpdate"
-          v-hasPermi="['manage:dormitoryApply:edit']"
-        >修改</el-button>
-      </el-col>
+      <!--      <el-col :span="1.5">-->
+      <!--        <el-button-->
+      <!--          type="primary"-->
+      <!--          plain-->
+      <!--          icon="el-icon-plus"-->
+      <!--          size="mini"-->
+      <!--          @click="handleAdd"-->
+      <!--          v-hasPermi="['manage:dormitoryApply:add']"-->
+      <!--        >新增</el-button>-->
+      <!--      </el-col>-->
+      <!--      <el-col :span="1.5">-->
+      <!--        <el-button-->
+      <!--          type="success"-->
+      <!--          plain-->
+      <!--          icon="el-icon-edit"-->
+      <!--          size="mini"-->
+      <!--          :disabled="single"-->
+      <!--          @click="handleUpdate"-->
+      <!--          v-hasPermi="['manage:dormitoryApply:edit']"-->
+      <!--        >修改</el-button>-->
+      <!--      </el-col>-->
       <el-col :span="1.5">
         <el-button
           type="danger"
@@ -91,7 +91,8 @@
           :disabled="multiple"
           @click="handleDelete"
           v-hasPermi="['manage:dormitoryApply:remove']"
-        >删除</el-button>
+        >删除
+        </el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button
@@ -101,7 +102,8 @@
           size="mini"
           @click="handleImport"
           v-hasPermi="['manage:dormitoryApply:import']"
-        >导入</el-button>
+        >导入
+        </el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button
@@ -111,36 +113,43 @@
           size="mini"
           @click="handleExport"
           v-hasPermi="['manage:dormitoryApply:export']"
-        >导出</el-button>
+        >导出
+        </el-button>
       </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList" :columns="columns"></right-toolbar>
     </el-row>
 
     <el-table v-loading="loading" :data="dormitoryApplyList" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="编号" align="center" v-if="columns[0].visible" prop="id" />
-        <el-table-column label="楼栋" :show-overflow-tooltip="true" align="center" v-if="columns[1].visible" prop="buildingId" />
-        <el-table-column label="宿舍" :show-overflow-tooltip="true" align="center" v-if="columns[2].visible" prop="dormitoryId" />
-        <el-table-column label="床位" :show-overflow-tooltip="true" align="center" v-if="columns[3].visible" prop="bedId" />
-        <el-table-column label="申请状态" align="center" v-if="columns[4].visible" prop="status">
+      <el-table-column type="selection" width="55" align="center"/>
+      <el-table-column label="编号" align="center" v-if="columns[0].visible" prop="id"/>
+      <el-table-column label="楼栋" :show-overflow-tooltip="true" align="center" v-if="columns[1].visible"
+                       prop="buildingName"/>
+      <el-table-column label="宿舍" :show-overflow-tooltip="true" align="center" v-if="columns[2].visible"
+                       prop="dormitoryName"/>
+      <el-table-column label="床位" :show-overflow-tooltip="true" align="center" v-if="columns[3].visible"
+                       prop="bedNum"/>
+      <el-table-column label="申请状态" align="center" v-if="columns[4].visible" prop="status">
         <template slot-scope="scope">
           <dict-tag :options="dict.type.apply_status" :value="scope.row.status"/>
         </template>
       </el-table-column>
-        <el-table-column label="申请理由" :show-overflow-tooltip="true" align="center" v-if="columns[5].visible" prop="applyContent" />
-        <el-table-column label="备注" :show-overflow-tooltip="true" align="center" v-if="columns[6].visible" prop="remark" />
-        <el-table-column label="创建人" :show-overflow-tooltip="true" align="center" v-if="columns[7].visible" prop="userId" />
-        <el-table-column label="创建时间" align="center" v-if="columns[8].visible" prop="createTime" width="180">
+      <el-table-column label="申请理由" :show-overflow-tooltip="true" align="center" v-if="columns[5].visible"
+                       prop="applyContent"/>
+      <el-table-column label="备注" :show-overflow-tooltip="true" align="center" v-if="columns[6].visible"
+                       prop="remark"/>
+      <el-table-column label="创建人" :show-overflow-tooltip="true" align="center" v-if="columns[7].visible"
+                       prop="userName"/>
+      <el-table-column label="创建时间" align="center" v-if="columns[8].visible" prop="createTime" width="180">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
-        <el-table-column label="更新时间" align="center" v-if="columns[9].visible" prop="updateTime" width="180">
+      <el-table-column label="更新时间" align="center" v-if="columns[9].visible" prop="updateTime" width="180">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
-        <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
             size="mini"
@@ -148,14 +157,16 @@
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
             v-hasPermi="['manage:dormitoryApply:edit']"
-          >修改</el-button>
+          >审核
+          </el-button>
           <el-button
             size="mini"
             type="text"
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
             v-hasPermi="['manage:dormitoryApply:remove']"
-          >删除</el-button>
+          >删除
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -171,33 +182,34 @@
     <!-- 添加或修改宿舍申请对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="楼栋" prop="buildingId">
-          <el-input v-model="form.buildingId" placeholder="请输入楼栋" />
-        </el-form-item>
-        <el-form-item label="宿舍" prop="dormitoryId">
-          <el-input v-model="form.dormitoryId" placeholder="请输入宿舍" />
-        </el-form-item>
-        <el-form-item label="床位" prop="bedId">
-          <el-input v-model="form.bedId" placeholder="请输入床位" />
-        </el-form-item>
+        <!--        <el-form-item label="楼栋" prop="buildingId">-->
+        <!--          <el-input v-model="form.buildingId" placeholder="请输入楼栋"/>-->
+        <!--        </el-form-item>-->
+        <!--        <el-form-item label="宿舍" prop="dormitoryId">-->
+        <!--          <el-input v-model="form.dormitoryId" placeholder="请输入宿舍"/>-->
+        <!--        </el-form-item>-->
+        <!--        <el-form-item label="床位" prop="bedId">-->
+        <!--          <el-input v-model="form.bedId" placeholder="请输入床位"/>-->
+        <!--        </el-form-item>-->
         <el-form-item label="申请状态" prop="status">
           <el-radio-group v-model="form.status">
             <el-radio
               v-for="dict in dict.type.apply_status"
               :key="dict.value"
               :label="dict.value"
-            >{{dict.label}}</el-radio>
+            >{{ dict.label }}
+            </el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="申请理由" prop="applyContent">
-          <el-input v-model="form.applyContent" type="textarea" placeholder="请输入内容" />
+          <el-input v-model="form.applyContent" type="textarea" placeholder="请输入内容"/>
         </el-form-item>
         <el-form-item label="备注" prop="remark">
-          <el-input v-model="form.remark" type="textarea" placeholder="请输入内容" />
+          <el-input v-model="form.remark" type="textarea" placeholder="请输入内容"/>
         </el-form-item>
-        <el-form-item label="创建人" prop="userId">
-          <el-input v-model="form.userId" placeholder="请输入创建人" />
-        </el-form-item>
+        <!--        <el-form-item label="创建人" prop="userId">-->
+        <!--          <el-input v-model="form.userId" placeholder="请输入创建人"/>-->
+        <!--        </el-form-item>-->
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="submitForm">确 定</el-button>
@@ -207,15 +219,20 @@
 
     <!-- 宿舍申请导入对话框 -->
     <el-dialog :title="upload.title" :visible.sync="upload.open" width="400px" append-to-body>
-      <el-upload ref="upload" :limit="1" accept=".xlsx, .xls" :headers="upload.headers" :action="upload.url + '?updateSupport=' + upload.updateSupport" :disabled="upload.isUploading" :on-progress="handleFileUploadProgress" :on-success="handleFileSuccess" :auto-upload="false" drag>
+      <el-upload ref="upload" :limit="1" accept=".xlsx, .xls" :headers="upload.headers"
+                 :action="upload.url + '?updateSupport=' + upload.updateSupport" :disabled="upload.isUploading"
+                 :on-progress="handleFileUploadProgress" :on-success="handleFileSuccess" :auto-upload="false" drag>
         <i class="el-icon-upload"></i>
         <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
         <div class="el-upload__tip text-center" slot="tip">
           <div class="el-upload__tip" slot="tip">
-            <el-checkbox v-model="upload.updateSupport" />是否更新已经存在的宿舍申请数据
+            <el-checkbox v-model="upload.updateSupport"/>
+            是否更新已经存在的宿舍申请数据
           </div>
           <span>仅允许导入xls、xlsx格式文件。</span>
-          <el-link type="primary" :underline="false" style="font-size: 12px; vertical-align: baseline" @click="importTemplate">下载模板</el-link>
+          <el-link type="primary" :underline="false" style="font-size: 12px; vertical-align: baseline"
+                   @click="importTemplate">下载模板
+          </el-link>
         </div>
       </el-upload>
       <div slot="footer" class="dialog-footer">
@@ -227,8 +244,14 @@
 </template>
 
 <script>
-import { listDormitoryApply, getDormitoryApply, delDormitoryApply, addDormitoryApply, updateDormitoryApply, importDormitoryApply, importTemplateDormitoryApply } from "@/api/manage/dormitoryApply";
-import { getToken } from "@/utils/auth";
+import {
+  addDormitoryApply,
+  delDormitoryApply,
+  getDormitoryApply,
+  listDormitoryApply,
+  updateDormitoryApply
+} from "@/api/manage/dormitoryApply";
+import {getToken} from "@/utils/auth";
 
 export default {
   name: "DormitoryApply",
@@ -237,17 +260,17 @@ export default {
     return {
       //表格展示列
       columns: [
-        { key: 0, label: '编号', visible: true },
-          { key: 1, label: '楼栋', visible: true },
-          { key: 2, label: '宿舍', visible: true },
-          { key: 3, label: '床位', visible: true },
-          { key: 4, label: '申请状态', visible: true },
-          { key: 5, label: '申请理由', visible: true },
-          { key: 6, label: '备注', visible: true },
-          { key: 7, label: '创建人', visible: true },
-          { key: 8, label: '创建时间', visible: true },
-          { key: 9, label: '更新时间', visible: true },
-        ],
+        {key: 0, label: '编号', visible: true},
+        {key: 1, label: '楼栋', visible: true},
+        {key: 2, label: '宿舍', visible: true},
+        {key: 3, label: '床位', visible: true},
+        {key: 4, label: '申请状态', visible: true},
+        {key: 5, label: '申请理由', visible: true},
+        {key: 6, label: '备注', visible: true},
+        {key: 7, label: '创建人', visible: true},
+        {key: 8, label: '创建时间', visible: true},
+        {key: 9, label: '更新时间', visible: true},
+      ],
       // 遮罩层
       loading: true,
       // 选中数组
@@ -294,7 +317,7 @@ export default {
         // 是否更新已经存在的宿舍申请数据
         updateSupport: 0,
         // 设置上传的请求头部
-        headers: { Authorization: "Bearer " + getToken() },
+        headers: {Authorization: "Bearer " + getToken()},
         // 上传的地址
         url: process.env.VUE_APP_BASE_API + "/manage/dormitoryApply/importData",
         // 下载模板的地址
@@ -303,28 +326,28 @@ export default {
       // 表单校验
       rules: {
         buildingId: [
-          { required: true, message: "楼栋不能为空", trigger: "blur" }
+          {required: true, message: "楼栋不能为空", trigger: "blur"}
         ],
         dormitoryId: [
-          { required: true, message: "宿舍不能为空", trigger: "blur" }
+          {required: true, message: "宿舍不能为空", trigger: "blur"}
         ],
         bedId: [
-          { required: true, message: "床位不能为空", trigger: "blur" }
+          {required: true, message: "床位不能为空", trigger: "blur"}
         ],
         status: [
-          { required: true, message: "申请状态不能为空", trigger: "change" }
+          {required: true, message: "申请状态不能为空", trigger: "change"}
         ],
         applyContent: [
-          { required: true, message: "申请理由不能为空", trigger: "blur" }
+          {required: false, message: "申请理由不能为空", trigger: "blur"}
         ],
         remark: [
-          { required: true, message: "备注不能为空", trigger: "blur" }
+          {required: false, message: "备注不能为空", trigger: "blur"}
         ],
         userId: [
-          { required: true, message: "创建人不能为空", trigger: "blur" }
+          {required: true, message: "创建人不能为空", trigger: "blur"}
         ],
         createTime: [
-          { required: true, message: "创建时间不能为空", trigger: "blur" }
+          {required: true, message: "创建时间不能为空", trigger: "blur"}
         ],
       }
     };
@@ -382,7 +405,7 @@ export default {
     // 多选框选中数据
     handleSelectionChange(selection) {
       this.ids = selection.map(item => item.id)
-      this.single = selection.length!==1
+      this.single = selection.length !== 1
       this.multiple = !selection.length
     },
     /** 新增按钮操作 */
@@ -424,12 +447,13 @@ export default {
     /** 删除按钮操作 */
     handleDelete(row) {
       const ids = row.id || this.ids;
-      this.$modal.confirm('是否确认删除宿舍申请编号为"' + ids + '"的数据项？').then(function() {
+      this.$modal.confirm('是否确认删除宿舍申请编号为"' + ids + '"的数据项？').then(function () {
         return delDormitoryApply(ids);
       }).then(() => {
         this.getList();
         this.$modal.msgSuccess("删除成功");
-      }).catch(() => {});
+      }).catch(() => {
+      });
     },
     /** 导出按钮操作 */
     handleExport() {
@@ -444,8 +468,7 @@ export default {
     },
     /** 下载模板操作 */
     importTemplate() {
-      this.download(this.upload.templateUrl, {
-      }, `dormitoryApply_template_${new Date().getTime()}.xlsx`)
+      this.download(this.upload.templateUrl, {}, `dormitoryApply_template_${new Date().getTime()}.xlsx`)
     },
     // 文件上传中处理
     handleFileUploadProgress(event, file, fileList) {
@@ -456,7 +479,7 @@ export default {
       this.upload.open = false;
       this.upload.isUploading = false;
       this.$refs.upload.clearFiles();
-      this.$alert("<div style='overflow: auto;overflow-x: hidden;max-height: 70vh;padding: 10px 20px 0;'>" + response.msg + "</div>", "导入结果", { dangerouslyUseHTMLString: true });
+      this.$alert("<div style='overflow: auto;overflow-x: hidden;max-height: 70vh;padding: 10px 20px 0;'>" + response.msg + "</div>", "导入结果", {dangerouslyUseHTMLString: true});
       this.getList();
     },
     // 提交上传文件

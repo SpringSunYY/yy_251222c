@@ -320,7 +320,7 @@ public class DormitoryBedServiceImpl extends ServiceImpl<DormitoryBedMapper, Dor
         dormitoryBedMapper.updateDormitoryBed(dormitoryBed);
         //如果更新了，则添加历史
         DormitoryBedHistory dormitoryBedHistory = new DormitoryBedHistory();
-        BeanUtils.copyProperties(dormitoryBed, dormitoryBedHistory);
+        BeanUtils.copyProperties(dormitoryBedExist, dormitoryBedHistory);
         dormitoryBedHistoryService.insertDormitoryBedHistory(dormitoryBedHistory);
         //计算人数
         long count = this.count(new LambdaQueryWrapper<DormitoryBed>()

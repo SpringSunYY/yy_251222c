@@ -15,6 +15,7 @@ import com.lz.manage.model.domain.Dormitory;
 import com.lz.manage.model.domain.DormitoryApply;
 import com.lz.manage.model.domain.DormitoryBed;
 import com.lz.manage.model.dto.dormitoryApply.DormitoryApplyQuery;
+import com.lz.manage.model.enums.ApplyStatusEnum;
 import com.lz.manage.model.enums.DormitoryStatusEnum;
 import com.lz.manage.model.vo.dormitoryApply.DormitoryApplyVo;
 import com.lz.manage.service.IBuildingService;
@@ -144,6 +145,20 @@ public class DormitoryApplyServiceImpl extends ServiceImpl<DormitoryApplyMapper,
      */
     @Override
     public int updateDormitoryApply(DormitoryApply dormitoryApply) {
+        checkDormitoryApply(dormitoryApply);
+        //先查询数据库是否已经同意
+        DormitoryApply dormitoryApplyDb = dormitoryApplyMapper.selectDormitoryApplyById(dormitoryApply.getId());
+        if (dormitoryApplyDb.getStatus().equals(ApplyStatusEnum.APPLY_STATUS_1.getValue())) {
+            throw new ServiceException("该申请已通过，请勿重复操作");
+        }
+        //如果这里传过来的是同意状态
+        if (dormitoryApply.getStatus().equals(ApplyStatusEnum.APPLY_STATUS_1.getValue())) {
+            DormitoryBed dormitoryBed = new DormitoryBed();
+            dormitoryBed.setId(dormitoryApply.getBedId());
+            dormitoryBed.setBelongUserId(dormitoryApply.getUserId());
+            dormitoryBed.setDormitoryId(dormitoryApply.getDormitoryId());
+            dormitoryBedService.allotDormitoryBed(dormitoryBed);
+        }
         dormitoryApply.setUpdateTime(DateUtils.getNowDate());
         return dormitoryApplyMapper.updateDormitoryApply(dormitoryApply);
     }

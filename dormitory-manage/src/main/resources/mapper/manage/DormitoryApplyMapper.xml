@@ -3,7 +3,7 @@
 PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.lz.manage.mapper.DormitoryApplyMapper">
-    
+
     <resultMap type="DormitoryApply" id="DormitoryApplyResult">
         <result property="id"    column="id"    />
         <result property="buildingId"    column="building_id"    />
@@ -23,7 +23,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectDormitoryApplyList" parameterType="DormitoryApply" resultMap="DormitoryApplyResult">
         <include refid="selectDormitoryApplyVo"/>
-        <where>  
+        <where>
             <if test="id != null "> and id = #{id}</if>
             <if test="buildingId != null "> and building_id = #{buildingId}</if>
             <if test="dormitoryId != null "> and dormitory_id = #{dormitoryId}</if>
@@ -31,8 +31,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="status != null  and status != ''"> and status = #{status}</if>
             <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''"> and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}</if>
         </where>
+        order by create_time desc
     </select>
-    
+
     <select id="selectDormitoryApplyById" parameterType="Long" resultMap="DormitoryApplyResult">
         <include refid="selectDormitoryApplyVo"/>
         where id = #{id}
@@ -85,7 +86,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </delete>
 
     <delete id="deleteDormitoryApplyByIds" parameterType="String">
-        delete from tb_dormitory_apply where id in 
+        delete from tb_dormitory_apply where id in
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}
         </foreach>
