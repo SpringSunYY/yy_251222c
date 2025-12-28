@@ -43,7 +43,7 @@ public class DormitoryController extends BaseController
     /**
      * 查询宿舍列表
      */
-    @PreAuthorize("@ss.hasPermi('manage:dormitory:list')")
+    @PreAuthorize("@ss.hasAnyPermi('manage:dormitory:list,manage:dormitory:query')")
     @GetMapping("/list")
     public TableDataInfo list(DormitoryQuery dormitoryQuery)
     {

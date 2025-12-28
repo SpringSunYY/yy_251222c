@@ -3,7 +3,7 @@
 PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.lz.manage.mapper.RepairMapper">
-    
+
     <resultMap type="Repair" id="RepairResult">
         <result property="id"    column="id"    />
         <result property="buildingId"    column="building_id"    />
@@ -33,7 +33,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectRepairList" parameterType="Repair" resultMap="RepairResult">
         <include refid="selectRepairVo"/>
-        <where>  
+        <where>
             <if test="id != null "> and id = #{id}</if>
             <if test="buildingId != null "> and building_id = #{buildingId}</if>
             <if test="dormitoryId != null "> and dormitory_id = #{dormitoryId}</if>
@@ -44,8 +44,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="repairAddress != null  and repairAddress != ''"> and repair_address = #{repairAddress}</if>
             <if test="createTime != null "> and create_time = #{createTime}</if>
         </where>
+        order by create_time desc
     </select>
-    
+
     <select id="selectRepairById" parameterType="Long" resultMap="RepairResult">
         <include refid="selectRepairVo"/>
         where id = #{id}
@@ -128,7 +129,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </delete>
 
     <delete id="deleteRepairByIds" parameterType="String">
-        delete from tb_repair where id in 
+        delete from tb_repair where id in
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}
         </foreach>

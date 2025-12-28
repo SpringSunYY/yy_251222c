@@ -77,6 +77,10 @@ public class RepairWorkOrderServiceImpl extends ServiceImpl<RepairWorkOrderMappe
      */
     @Override
     public List<RepairWorkOrder> selectRepairWorkOrderList(RepairWorkOrder repairWorkOrder) {
+        //如果没有查看全部
+        if (SecurityUtils.hasPermi("manage:repairWorkOrder:all")) {
+            repairWorkOrder.setDealWithId(SecurityUtils.getUserId());
+        }
         List<RepairWorkOrder> repairWorkOrders = repairWorkOrderMapper.selectRepairWorkOrderList(repairWorkOrder);
         for (RepairWorkOrder info : repairWorkOrders) {
             SysUser sysUser = sysUserService.selectUserById(info.getUserId());

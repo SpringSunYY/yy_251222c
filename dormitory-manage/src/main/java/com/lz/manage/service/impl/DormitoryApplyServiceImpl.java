@@ -88,6 +88,10 @@ public class DormitoryApplyServiceImpl extends ServiceImpl<DormitoryApplyMapper,
      */
     @Override
     public List<DormitoryApply> selectDormitoryApplyList(DormitoryApply dormitoryApply) {
+        //如果没有查看全部
+        if (!SecurityUtils.hasPermi("manage:dormitoryApply:all")) {
+            dormitoryApply.setUserId(SecurityUtils.getUserId());
+        }
         List<DormitoryApply> dormitoryApplies = dormitoryApplyMapper.selectDormitoryApplyList(dormitoryApply);
         for (DormitoryApply info : dormitoryApplies) {
             SysUser sysUser = sysUserService.selectUserById(info.getUserId());

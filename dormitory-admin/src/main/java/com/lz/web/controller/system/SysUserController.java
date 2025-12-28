@@ -60,7 +60,7 @@ public class SysUserController extends BaseController {
     /**
      * 获取用户列表，根据角色
      */
-    @PreAuthorize("@ss.hasPermi('system:user:list')")
+//    @PreAuthorize("@ss.hasPermi('system:user:list')")
     @GetMapping("/listByRole")
     public TableDataInfo listByRole(SysUser user) {
         startPage();

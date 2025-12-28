@@ -43,7 +43,7 @@ public class BuildingController extends BaseController
     /**
      * 查询楼栋信息列表
      */
-    @PreAuthorize("@ss.hasPermi('manage:building:list')")
+    @PreAuthorize("@ss.hasAnyPermi('manage:building:list,manage:building:query')")
     @GetMapping("/list")
     public TableDataInfo list(BuildingQuery buildingQuery)
     {
