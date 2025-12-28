@@ -60,7 +60,7 @@ public class RepairWorkOrder implements Serializable
 
     /** 完成时间 */
     @Excel(name = "完成时间")
-    private Long completedTime;
+    private Date completedTime;
 
     /** 备注 */
     @Excel(name = "备注")

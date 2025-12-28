@@ -362,7 +362,7 @@ export default {
       // 总条数
       total: 0,
       // 宿舍床位表格数据
-      dormitoryBedList: [],
+      bedList: [],
       // 弹出层标题
       title: "",
       // 是否显示弹出层

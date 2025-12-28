@@ -39,7 +39,7 @@ public class RepairWorkOrderInsert implements Serializable
     private String dealWithImage;
 
     /** 完成时间 */
-    private Long completedTime;
+    private Date completedTime;
 
     /** 备注 */
     private String remark;

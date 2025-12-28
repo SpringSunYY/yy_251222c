@@ -55,7 +55,7 @@ public class RepairInsert implements Serializable
     private String contactPhone;
 
     /** 完成时间 */
-    private Long completedTime;
+    private Date completedTime;
 
     /** 处理费用 */
     private Long dealWithCost;
