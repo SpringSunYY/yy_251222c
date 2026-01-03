@@ -42,6 +42,7 @@
         <where>
             <if test="id != null ">and id = #{id}</if>
             <if test="repairId != null ">and repair_id = #{repairId}</if>
+            <if test="dealWithId != null ">and deal_with_id = #{dealWithId}</if>
             <if test="status != null  and status != ''">and status = #{status}</if>
             <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''">
                 and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}
