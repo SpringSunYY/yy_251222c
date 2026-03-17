@@ -20,8 +20,8 @@ import com.lz.system.service.ISysUserService;
 
 /**
  * 注册校验方法
- * 
- * @author ruoyi
+ *
+ * @author YY
  */
 @Component
 public class SysRegisterService
@@ -92,7 +92,7 @@ public class SysRegisterService
 
     /**
      * 校验验证码
-     * 
+     *
      * @param username 用户名
      * @param code 验证码
      * @param uuid 唯一标识

@@ -21,8 +21,8 @@ import com.lz.common.utils.html.EscapeUtil;
 
 /**
  * 全局异常处理器
- * 
- * @author ruoyi
+ *
+ * @author YY
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler

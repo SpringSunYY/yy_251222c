@@ -2,8 +2,8 @@ package com.lz.common.exception.user;
 
 /**
  * 用户不存在异常类
- * 
- * @author ruoyi
+ *
+ * @author YY
  */
 public class UserNotExistsException extends UserException
 {

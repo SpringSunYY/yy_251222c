@@ -21,8 +21,8 @@ import com.lz.system.service.ISysMenuService;
 
 /**
  * 登录验证
- * 
- * @author ruoyi
+ *
+ * @author YY
  */
 @RestController
 public class SysLoginController
@@ -41,7 +41,7 @@ public class SysLoginController
 
     /**
      * 登录方法
-     * 
+     *
      * @param loginBody 登录信息
      * @return 结果
      */
@@ -58,7 +58,7 @@ public class SysLoginController
 
     /**
      * 获取用户信息
-     * 
+     *
      * @return 用户信息
      */
     @GetMapping("getInfo")
@@ -84,7 +84,7 @@ public class SysLoginController
 
     /**
      * 获取路由信息
-     * 
+     *
      * @return 路由信息
      */
     @GetMapping("getRouters")

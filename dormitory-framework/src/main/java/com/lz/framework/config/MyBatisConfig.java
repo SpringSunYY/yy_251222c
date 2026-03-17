@@ -26,8 +26,8 @@ import com.lz.common.utils.StringUtils;
 
 /**
  * Mybatis支持*匹配扫描包
- * 
- * @author ruoyi
+ *
+ * @author YY
  */
 //@Configuration
 public class MyBatisConfig
